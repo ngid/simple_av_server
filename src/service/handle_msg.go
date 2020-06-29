@@ -110,3 +110,7 @@ func HandleSendData(ctx context.Context, req *simple_av.SendDataReq, rsp *simple
 	roomInfo.SendAll(uid, msgContext.RawData)
 	return 0, ""
 }
+
+func HandleJoin(ctx context.Context) {
+
+}
