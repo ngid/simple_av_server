@@ -1,45 +1,18 @@
-package main
+/**
+ * @Author: mjzheng
+ * @Description:
+ * @File:  parse.go
+ * @Version: 1.0.0
+ * @Date: 2020/6/29 下午7:02
+ */
+
+package service
 
 import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"net"
 )
-
-func Listen() {
-	listener, err := net.Listen("tcp", "localhost:50000")
-	if err != nil {
-		return
-	}
-
-	ctx1 := context.Background()
-	ctx, _ := context.WithCancel(ctx1)
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			continue
-		}
-		connCtx := context.WithValue(ctx, "conn", conn)
-		//clients.Add(conn)
-		go doServerStuff(conn, connCtx)
-	}
-}
-
-func doServerStuff(conn net.Conn, ctx context.Context) {
-	buf := make([]byte, 1024)
-	fmt.Println("len", len(buf))
-	from := 0
-	for {
-		total, err := conn.Read(buf[from:])
-		if err != nil {
-			fmt.Println("Error reading", err.Error())
-			return //终止程序
-		}
-
-		buf, from = SpiltPackage(ctx, buf, total+from)
-	}
-}
 
 const (
 	STATUS_START_EX = 1
@@ -49,7 +22,7 @@ const (
 	STATUS_COMPLETE = 5
 )
 
-func SpiltPackage(ctx context.Context, buf []byte, total int) (remain []byte, remainLen int) {
+func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remainLen int) {
 	useLen := 0
 	from := 0
 	status := STATUS_START_EX

@@ -6,7 +6,7 @@
  * @Date: 2020/6/29 上午11:28
  */
 
-package main
+package service
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_av"
 	"github.com/mjproto/simple_msg"
+	"github.com/ngid/simple_av_server/src/ngid"
 	"net"
 )
 
@@ -32,6 +33,11 @@ func HandleMsg(ctx context.Context, pData []byte) {
 		Subcmd: msg.GetSubcmd(),
 		Seq:    msg.GetSeq(),
 	}
+
+	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext.HeadReq = msg
+	msgContext.HeadRsp = headRsp
+	msgContext.RawData = pData
 
 	switch msg.Subcmd {
 	case int32(simple_av.SUB_CMD_JoinRoom):
@@ -64,29 +70,15 @@ func HandleMsg(ctx context.Context, pData []byte) {
 	}
 
 	pRsp, _ := proto.Marshal(headRsp)
-	conn := ctx.Value("conn").(net.Conn)
-	conn.Write(pRsp)
+
+	msgContext.Conn.Write(pRsp)
 }
 
 func HandleJoinRoom(ctx context.Context, req *simple_av.JoinRoomReq, rsp *simple_av.JoinRoomRsp) (errorCode int32, errorMsg string) {
-
-	uid := req.GetUid()
-	_, ok := UidToRoomId[uid]
-	if ok {
-		return 1, "already join room"
-	}
-
-	//
 	roomId := req.GetRoomId()
-	UidToRoomId[uid] = roomId //
+	uid := req.GetUid()
 
-	roomInfo, ok := RoomList[roomId]
-	if !ok {
-		roomInfo = RoomInfo{
-			userList: make(map[int64]UserInfo),
-		}
-		RoomList[roomId] = roomInfo
-	}
+	roomInfo := RManager.GetRoom(ctx, roomId)
 	conn := ctx.Value("conn").(net.Conn)
 	roomInfo.AddUser(uid, conn)
 
@@ -94,27 +86,27 @@ func HandleJoinRoom(ctx context.Context, req *simple_av.JoinRoomReq, rsp *simple
 }
 
 func HandleExitRoom(ctx context.Context, req *simple_av.ExitRoomReq, rsp *simple_av.ExitRoomRsp) (errorCode int32, errorMsg string) {
-	uid := req.GetUid()
-	if _, ok := UidToRoomId[uid]; ok {
-		delete(UidToRoomId, uid)
-	}
-
 	roomId := req.GetRoomId()
-	if roomInfo, ok := RoomList[roomId]; ok {
-		roomInfo.DeleteUser(uid)
-	}
+	uid := req.GetUid()
+
+	roomInfo := RManager.GetRoom(ctx, roomId)
+	roomInfo.DeleteUser(uid)
 	return 0, ""
 }
 
 func HandleUpload(ctx context.Context, req *simple_av.UploadReq, rsp *simple_av.UploadRsp) (errorCode int32, errorMsg string) {
-	uid := req.GetUid()
 	roomId := req.GetRoomId()
-	if roomInfo, ok := RoomList[roomId]; ok {
-		roomInfo.UpdateUser(uid, true)
-	}
+	uid := req.GetUid()
+	roomInfo := RManager.GetRoom(ctx, roomId)
+	roomInfo.UpdateUser(uid, true)
 	return 0, ""
 }
 
-func HandleSendData(ctx context.Context, req *simple_av.UploadReq, rsp *simple_av.UploadRsp) (errorCode int32, errorMsg string) {
+func HandleSendData(ctx context.Context, req *simple_av.SendDataReq, rsp *simple_av.SendDataRsp) (errorCode int32, errorMsg string) {
+	roomId := req.GetRoomId()
+	uid := req.GetUid()
+	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	roomInfo := RManager.GetRoom(ctx, roomId)
+	roomInfo.SendAll(uid, msgContext.RawData)
 	return 0, ""
 }

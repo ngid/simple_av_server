@@ -6,9 +6,10 @@
  * @Date: 2020/6/29 下午2:25
  */
 
-package main
+package service
 
 import (
+	"fmt"
 	"net"
 	"sync"
 )
@@ -19,26 +20,30 @@ type UserInfo struct {
 	bUpload bool
 }
 
+type UserInfoList map[int64]*UserInfo
+
 type RoomInfo struct {
-	userList map[int64]UserInfo // uid->UserInfo
+	roomId   int64
+	userList UserInfoList // uid->UserInfo
 	mutex    sync.Mutex
 }
 
 func (c *RoomInfo) AddUser(uid int64, conn net.Conn) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if _, ok := c.userList[uid]; !ok {
-		userInfo := UserInfo{
+		userInfo := &UserInfo{
 			uid:     uid,
 			conn:    conn,
 			bUpload: false,
 		}
 		c.userList[uid] = userInfo
 	}
-	c.mutex.Unlock()
 }
 
 func (c *RoomInfo) DeleteUser(uid int64) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if _, ok := c.userList[uid]; ok {
 		delete(c.userList, uid)
 	}
@@ -47,20 +52,20 @@ func (c *RoomInfo) DeleteUser(uid int64) {
 
 func (c *RoomInfo) UpdateUser(uid int64, bUpload bool) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	if user, ok := c.userList[uid]; ok {
+		fmt.Printf("%p\n", &user)
 		user.bUpload = bUpload
 	}
-	c.mutex.Unlock()
 }
 
-func (c *RoomInfo) SendAll(b []byte) {
+func (c *RoomInfo) SendAll(uid int64, b []byte) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	for _, user := range c.userList {
+		if user.uid == uid {
+			continue
+		}
 		user.conn.Write(b)
 	}
-	c.mutex.Unlock()
 }
-
-var RoomList map[int64]RoomInfo // room id-> room info
-
-var UidToRoomId map[int64]int64 // uid->room id
