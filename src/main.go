@@ -15,7 +15,18 @@ import (
 )
 
 func init() {
-	ngid.RegisterFunc(0x66f, 3, &simple_av.JoinRoomReq{}, &simple_av.JoinRoomRsp{}, ngid.HandlerFunc(service.HandleJoin))
+	ngid.RegisterFunc(0x1, uint32(simple_av.SUB_CMD_JoinRoom), &simple_av.JoinRoomReq{}, &simple_av.JoinRoomRsp{},
+		ngid.HandlerFunc(service.HandleJoin))
+
+	ngid.RegisterFunc(0x1, uint32(simple_av.SUB_CMD_ExitRoom), &simple_av.ExitRoomReq{}, &simple_av.ExitRoomRsp{},
+		ngid.HandlerFunc(service.HandleExit))
+
+	ngid.RegisterFunc(0x1, uint32(simple_av.SUB_CMD_Upload), &simple_av.UploadReq{}, &simple_av.UploadRsp{},
+		ngid.HandlerFunc(service.HandleUpload))
+
+	ngid.RegisterFunc(0x1, uint32(simple_av.SUB_CMD_SendData), &simple_av.SendDataReq{}, &simple_av.SendDataRsp{},
+		ngid.HandlerFunc(service.HandleSendData))
+
 }
 
 func main() {

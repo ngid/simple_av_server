@@ -9,6 +9,7 @@
 package ngid
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/proto"
@@ -45,37 +46,37 @@ func (mux register) String() string {
 
 type ServeMux struct {
 	mu          sync.RWMutex
-	m           map[int]muxEntry
+	m           map[string]muxEntry
 	mapRegister map[iliveCmd]register
 }
 
 type muxEntry struct {
 	h       Handler
-	pattern int
+	pattern string
 }
 
 var DefaultServeMux = &ServeMux{
-	m:           make(map[int]muxEntry),
+	m:           make(map[string]muxEntry),
 	mapRegister: make(map[iliveCmd]register),
 }
 
-func HandleFunc(pattern int, handler HandlerFunc) {
+func HandleFunc(pattern string, handler HandlerFunc) {
 	DefaultServeMux.HandleFunc(pattern, handler)
 }
 
-func Handle(pattern int, handler Handler) {
+func Handle(pattern string, handler Handler) {
 	DefaultServeMux.Handle(pattern, handler)
 }
 
 // HandleFunc registers the handler function for the given pattern.
-func (mux *ServeMux) HandleFunc(pattern int, handler HandlerFunc) {
+func (mux *ServeMux) HandleFunc(pattern string, handler HandlerFunc) {
 	if handler == nil {
 		panic("gifts: nil handler")
 	}
 	mux.Handle(pattern, handler)
 }
 
-func (mux *ServeMux) Handle(pattern int, handler Handler) {
+func (mux *ServeMux) Handle(pattern string, handler Handler) {
 	mux.mu.Lock()
 	defer mux.mu.Unlock()
 
@@ -88,13 +89,13 @@ func (mux *ServeMux) Handle(pattern int, handler Handler) {
 	}
 
 	if mux.m == nil {
-		mux.m = make(map[int]muxEntry)
+		mux.m = make(map[string]muxEntry)
 	}
 	e := muxEntry{h: handler, pattern: pattern}
 	mux.m[pattern] = e
 }
 
-func (mux *ServeMux) GetHandler(pattern int) Handler {
+func (mux *ServeMux) GetHandler(pattern string) Handler {
 	mux.mu.RLock()
 	defer mux.mu.RUnlock()
 
@@ -130,10 +131,45 @@ func (mux *ServeMux) RegisterFunc(bigCmd uint32, subCmd uint32, req proto.Messag
 
 	mux.mu.Lock()
 	defer mux.mu.Unlock()
+	fmt.Println(reflect.TypeOf(req), reflect.TypeOf(rsp))
 	mux.mapRegister[cmd] = register{reqType: reflect.TypeOf(req), rspType: reflect.TypeOf(rsp), h: HandlerFunc(handler)}
 }
 
 // RegisterFunc default mux handler
 func RegisterFunc(bigCmd uint32, subCmd uint32, req proto.Message, rsp proto.Message, handler HandlerFunc) {
 	DefaultServeMux.RegisterFunc(bigCmd, subCmd, req, rsp, handler)
+}
+
+// GetRegisterInfo 查找注册信息
+func GetRegisterInfo(ctx context.Context, mux *ServeMux, bigCmd uint32, subCmd uint32) (reflect.Type, reflect.Type, Handler, error) {
+	cmd := iliveCmd{
+		bigCmd: bigCmd,
+		subCmd: subCmd,
+	}
+	mux.mu.RLock()
+	defer mux.mu.RUnlock()
+
+	if reg, ok := mux.mapRegister[cmd]; ok {
+		return reg.reqType, reg.rspType, reg.h, nil
+	}
+	return nil, nil, nil, nil
+
+	//pattern := fmt.Sprintf("/0x%x/%d", bigCmd, subCmd)
+	//entry, ok := mux.m[pattern]
+	//if !ok {
+	//	return nil, nil, nil, errors.New("Cmd Not Match")
+	//}
+	//
+	//reqBodyName := entry.obj + "Req"
+	//reqBodyType := proto.MessageType(reqBodyName)
+	//if reqBodyType == nil {
+	//	return nil, nil, nil, fmt.Errorf("proto MessageType Not Found: %s", reqBodyName)
+	//}
+	//
+	//rspBodyName := entry.obj + "Rsp"
+	//rspBodyType := proto.MessageType(rspBodyName)
+	//if rspBodyType == nil {
+	//	return nil, nil, nil, fmt.Errorf("proto MessageType Not Found: %s", rspBodyName)
+	//}
+	//return reqBodyType, rspBodyType, entry.h, nil
 }

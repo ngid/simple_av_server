@@ -9,6 +9,7 @@
 package ngid
 
 import (
+	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
 	"net"
 )
@@ -17,5 +18,8 @@ type SimpleMsgContext struct {
 	Conn    net.Conn
 	HeadReq *simple_msg.HeadReq
 	HeadRsp *simple_msg.HeadRsp
+
+	BodyReq proto.Message
+	BodyRsp proto.Message
 	RawData []byte
 }
