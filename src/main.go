@@ -9,9 +9,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/mjproto/simple_av"
 	"github.com/ngid/simple_av_server/src/ngid"
 	"github.com/ngid/simple_av_server/src/service"
+	"reflect"
 )
 
 func init() {
@@ -29,6 +31,37 @@ func init() {
 
 }
 
+func TestReflect() {
+	//req := simple_av.JoinRoomReq{
+	//	RoomId: 100,
+	//	Uid: 88,
+	//}
+	////joinType := reflect.TypeOf(req)
+	//joinValue := reflect.ValueOf(req)
+	//
+	//fmt.Println(joinValue.Kind())
+	//fmt.Println(joinValue.Type())
+	//
+	//fmt.Println("start get ")
+	//
+	//for i:=0; i<joinValue.NumField(); i++ {
+	//	fmt.Println(joinValue.Field(i))
+	//}
+
+	joinType := reflect.TypeOf(&simple_av.JoinRoomReq{})
+
+	fmt.Println(joinType, joinType.Elem())
+
+	valueType := reflect.New(joinType.Elem())
+	fmt.Println(valueType)
+
+	req := valueType.Interface().(*simple_av.JoinRoomReq)
+	fmt.Printf("%#v", req)
+
+	//fmt.Println(joinType, joinValue)
+}
+
 func main() {
-	Listen()
+	TestReflect()
+	//Listen()
 }

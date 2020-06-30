@@ -12,11 +12,10 @@ import (
 	"context"
 	"github.com/mjproto/simple_av"
 	"github.com/ngid/simple_av_server/src/ngid"
-	"net"
 )
 
 func HandleJoinRoom(ctx context.Context) (errorCode int32, errorMsg string) {
-	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext := ngid.GetSimpleContext(ctx)
 	req := msgContext.BodyReq.(*simple_av.JoinRoomReq)
 	//rsp := msgContext.BodyRsp.(*simple_av.JoinRoomRsp)
 
@@ -24,14 +23,15 @@ func HandleJoinRoom(ctx context.Context) (errorCode int32, errorMsg string) {
 	uid := req.GetUid()
 
 	roomInfo := RManager.GetRoom(ctx, roomId)
-	conn := ctx.Value("conn").(net.Conn)
+	conn := msgContext.Conn
 	roomInfo.AddUser(uid, conn)
 
 	return 0, ""
 }
 
 func HandleExitRoom(ctx context.Context) (errorCode int32, errorMsg string) {
-	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext := ngid.GetSimpleContext(ctx)
+
 	req := msgContext.BodyReq.(*simple_av.ExitRoomReq)
 
 	roomId := req.GetRoomId()
@@ -43,7 +43,7 @@ func HandleExitRoom(ctx context.Context) (errorCode int32, errorMsg string) {
 }
 
 func HandleUpload(ctx context.Context) (errorCode int32, errorMsg string) {
-	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext := ngid.GetSimpleContext(ctx)
 	req := msgContext.BodyReq.(*simple_av.UploadReq)
 
 	roomId := req.GetRoomId()
@@ -54,7 +54,7 @@ func HandleUpload(ctx context.Context) (errorCode int32, errorMsg string) {
 }
 
 func HandleSendData(ctx context.Context) (errorCode int32, errorMsg string) {
-	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext := ngid.GetSimpleContext(ctx)
 	req := msgContext.BodyReq.(*simple_av.SendDataReq)
 
 	roomId := req.GetRoomId()

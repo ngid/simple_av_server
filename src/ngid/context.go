@@ -9,6 +9,7 @@
 package ngid
 
 import (
+	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
 	"net"
@@ -22,4 +23,9 @@ type SimpleMsgContext struct {
 	BodyReq proto.Message
 	BodyRsp proto.Message
 	RawData []byte
+}
+
+func GetSimpleContext(ctx context.Context) *SimpleMsgContext {
+	msgContext := ctx.Value("ngid").(*SimpleMsgContext)
+	return msgContext
 }

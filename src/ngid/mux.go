@@ -125,7 +125,7 @@ func (mux *ServeMux) RegisterFunc(bigCmd int32, subCmd int32, req proto.Message,
 		subCmd: subCmd,
 	}
 
-	fmt.Println(reflect.TypeOf(req), reflect.TypeOf(rsp))
+	//fmt.Println(reflect.TypeOf(req), reflect.TypeOf(rsp))
 	mux.mu.Lock()
 	defer mux.mu.Unlock()
 	mux.mapRegister[cmd] = register{reqType: reflect.TypeOf(req), rspType: reflect.TypeOf(rsp), h: HandlerFunc(handler)}
