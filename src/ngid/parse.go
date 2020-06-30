@@ -6,7 +6,7 @@
  * @Date: 2020/6/29 下午7:02
  */
 
-package service
+package ngid
 
 import (
 	"bytes"
@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
-	"github.com/ngid/simple_av_server/src/ngid"
 	"reflect"
 )
 
@@ -95,7 +94,7 @@ func HandleMsg(ctx context.Context, pData []byte) {
 		Seq:    headReq.GetSeq(),
 	}
 
-	reqBodyType, rspBodyType, handler, err := ngid.GetRegisterFunc(headReq.Cmd, headReq.Subcmd)
+	reqBodyType, rspBodyType, handler, err := GetRegisterFunc(headReq.Cmd, headReq.Subcmd)
 
 	if err != nil {
 		return
@@ -115,7 +114,7 @@ func HandleMsg(ctx context.Context, pData []byte) {
 		return
 	}
 
-	msgContext := ngid.GetSimpleContext(ctx)
+	msgContext := GetSimpleContext(ctx)
 	msgContext.HeadReq = headReq
 	msgContext.HeadRsp = headRsp
 	msgContext.RawData = pData

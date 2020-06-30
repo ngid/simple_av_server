@@ -62,6 +62,6 @@ func TestReflect() {
 }
 
 func main() {
-	TestReflect()
-	//Listen()
+	//TestReflect()
+	ngid.Listen()
 }

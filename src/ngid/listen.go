@@ -1,10 +1,8 @@
-package main
+package ngid
 
 import (
 	"context"
 	"fmt"
-	"github.com/ngid/simple_av_server/src/ngid"
-	"github.com/ngid/simple_av_server/src/service"
 	"net"
 )
 
@@ -21,7 +19,7 @@ func Listen() {
 		if err != nil {
 			continue
 		}
-		ngid := &ngid.SimpleMsgContext{
+		ngid := &SimpleMsgContext{
 			Conn: conn,
 		}
 		connCtx := context.WithValue(ctx, "ngid", ngid)
@@ -41,6 +39,6 @@ func doServerStuff(conn net.Conn, ctx context.Context) {
 			return //终止程序
 		}
 
-		buf, from = service.ParseMsg(ctx, buf, total+from)
+		buf, from = ParseMsg(ctx, buf, total+from)
 	}
 }
