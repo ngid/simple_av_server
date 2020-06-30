@@ -9,6 +9,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/binary"
 	"fmt"
@@ -79,55 +80,72 @@ func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remain
 }
 
 func HandleMsg(ctx context.Context, pData []byte) {
-	msg := &simple_msg.HeadReq{}
-	err := proto.Unmarshal(pData, msg)
+	headReq := &simple_msg.HeadReq{}
+	err := proto.Unmarshal(pData, headReq)
 	if err != nil {
 		//panic(err)
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(msg)
+	fmt.Println(headReq)
 	headRsp := &simple_msg.HeadRsp{
-		Cmd:    msg.GetCmd(),
-		Subcmd: msg.GetSubcmd(),
-		Seq:    msg.GetSeq(),
+		Cmd:    headReq.GetCmd(),
+		Subcmd: headReq.GetSubcmd(),
+		Seq:    headReq.GetSeq(),
 	}
 
-	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
-	msgContext.HeadReq = msg
-	msgContext.HeadRsp = headRsp
-	msgContext.RawData = pData
-	msgContext.BodyReq = nil
-	msgContext.BodyRsp = nil
-
-	reqBodyType, rspBodyType, handler, err := ngid.GetRegisterFunc(msg.Cmd, msg.Subcmd)
+	reqBodyType, rspBodyType, handler, err := ngid.GetRegisterFunc(headReq.Cmd, headReq.Subcmd)
 
 	if err != nil {
 		return
 	}
 
-	reqBody, ok := reflect.New(reqBodyType.Elem()).Interface().(proto.Message)
+	bodyReq, ok := reflect.New(reqBodyType.Elem()).Interface().(proto.Message)
 	if !ok {
 		return
 	}
-	msgContext.BodyReq = reqBody
 
-	rspBody, ok := reflect.New(rspBodyType.Elem()).Interface().(proto.Message)
+	bodyRsp, ok := reflect.New(rspBodyType.Elem()).Interface().(proto.Message)
 	if !ok {
 		return
 	}
-	msgContext.BodyRsp = rspBody
 
-	if err := proto.Unmarshal(msg.GetEx(), reqBody); err != nil {
+	if err := proto.Unmarshal(headReq.GetEx(), bodyReq); err != nil {
 		return
 	}
+
+	msgContext := ngid.GetSimpleContext(ctx)
+	msgContext.HeadReq = headReq
+	msgContext.HeadRsp = headRsp
+	msgContext.RawData = pData
+	msgContext.BodyReq = bodyReq
+	msgContext.BodyRsp = bodyRsp
 
 	headRsp.ErrCode, headRsp.ErrMsg = handler.HandleMsg(ctx)
 
 	fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
 
-	pRsp, _ := proto.Marshal(headRsp)
-
+	pRsp := ComposeMsg(headRsp)
 	msgContext.Conn.Write(pRsp)
+}
+
+func ComposeMsg(msg proto.Message) (data []byte) {
+	pData, err := proto.Marshal(msg)
+	if err != nil {
+		panic(err)
+	}
+
+	var buf bytes.Buffer
+	buf.WriteByte(0x2)
+	lenBuf := make([]byte, 2)
+	binary.BigEndian.PutUint16(lenBuf, uint16(len(pData)))
+	buf.Write(lenBuf)
+	buf.Write(pData)
+	buf.WriteByte(0x3)
+
+	fmt.Println(len(pData))
+
+	data = buf.Bytes()
+	return
 }
