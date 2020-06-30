@@ -6,8 +6,8 @@ import (
 	"net"
 )
 
-func Listen() {
-	listener, err := net.Listen("tcp", "localhost:50000")
+func Listen(addr string) {
+	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return
 	}

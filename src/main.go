@@ -63,5 +63,5 @@ func TestReflect() {
 
 func main() {
 	//TestReflect()
-	ngid.Listen()
+	ngid.Listen("localhost:50000")
 }

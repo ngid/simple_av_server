@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
+	"log"
 	"reflect"
 )
 
@@ -87,7 +88,7 @@ func HandleMsg(ctx context.Context, pData []byte) {
 		return
 	}
 
-	fmt.Println(headReq)
+	//fmt.Println(headReq)
 	headRsp := &simple_msg.HeadRsp{
 		Cmd:    headReq.GetCmd(),
 		Subcmd: headReq.GetSubcmd(),
@@ -123,7 +124,8 @@ func HandleMsg(ctx context.Context, pData []byte) {
 
 	headRsp.ErrCode, headRsp.ErrMsg = handler.HandleMsg(ctx)
 
-	fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
+	//fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
+	log.Printf("headReq[%v] req[%v] headRsp[%v] rsp[%v]", msgContext.HeadReq, msgContext.BodyReq, msgContext.HeadRsp, msgContext.BodyRsp)
 
 	pRsp := ComposeMsg(headRsp)
 	msgContext.Conn.Write(pRsp)
@@ -143,7 +145,7 @@ func ComposeMsg(msg proto.Message) (data []byte) {
 	buf.Write(pData)
 	buf.WriteByte(0x3)
 
-	fmt.Println(len(pData))
+	//fmt.Println(len(pData))
 
 	data = buf.Bytes()
 	return
