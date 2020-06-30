@@ -12,6 +12,10 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/mjproto/simple_msg"
+	"github.com/ngid/simple_av_server/src/ngid"
+	"reflect"
 )
 
 const (
@@ -72,4 +76,58 @@ func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remain
 	} else {
 		return buf, 0
 	}
+}
+
+func HandleMsg(ctx context.Context, pData []byte) {
+	msg := &simple_msg.HeadReq{}
+	err := proto.Unmarshal(pData, msg)
+	if err != nil {
+		//panic(err)
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(msg)
+	headRsp := &simple_msg.HeadRsp{
+		Cmd:    msg.GetCmd(),
+		Subcmd: msg.GetSubcmd(),
+		Seq:    msg.GetSeq(),
+	}
+
+	msgContext := ctx.Value("ngid").(*ngid.SimpleMsgContext)
+	msgContext.HeadReq = msg
+	msgContext.HeadRsp = headRsp
+	msgContext.RawData = pData
+	msgContext.BodyReq = nil
+	msgContext.BodyRsp = nil
+
+	reqBodyType, rspBodyType, handler, err := ngid.GetRegisterFunc(msg.Cmd, msg.Subcmd)
+
+	if err != nil {
+		return
+	}
+
+	reqBody, ok := reflect.New(reqBodyType.Elem()).Interface().(proto.Message)
+	if !ok {
+		return
+	}
+	msgContext.BodyReq = reqBody
+
+	rspBody, ok := reflect.New(rspBodyType.Elem()).Interface().(proto.Message)
+	if !ok {
+		return
+	}
+	msgContext.BodyRsp = rspBody
+
+	if err := proto.Unmarshal(msg.GetEx(), reqBody); err != nil {
+		return
+	}
+
+	headRsp.ErrCode, headRsp.ErrMsg = handler.HandleMsg(ctx)
+
+	fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
+
+	pRsp, _ := proto.Marshal(headRsp)
+
+	msgContext.Conn.Write(pRsp)
 }
