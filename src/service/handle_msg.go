@@ -26,7 +26,7 @@ func HandleJoinRoom(ctx context.Context) (errorCode int32, errorMsg string) {
 	conn := msgContext.Conn
 	roomInfo.AddUser(uid, conn)
 
-	return 0, ""
+	return 0, "success"
 }
 
 func HandleExitRoom(ctx context.Context) (errorCode int32, errorMsg string) {
@@ -39,7 +39,7 @@ func HandleExitRoom(ctx context.Context) (errorCode int32, errorMsg string) {
 
 	roomInfo := RManager.GetRoom(ctx, roomId)
 	roomInfo.DeleteUser(uid)
-	return 0, ""
+	return 0, "success"
 }
 
 func HandleUpload(ctx context.Context) (errorCode int32, errorMsg string) {
@@ -50,7 +50,7 @@ func HandleUpload(ctx context.Context) (errorCode int32, errorMsg string) {
 	uid := req.GetUid()
 	roomInfo := RManager.GetRoom(ctx, roomId)
 	roomInfo.UpdateUser(uid, true)
-	return 0, ""
+	return 0, "success"
 }
 
 func HandleSendData(ctx context.Context) (errorCode int32, errorMsg string) {
@@ -61,5 +61,5 @@ func HandleSendData(ctx context.Context) (errorCode int32, errorMsg string) {
 	uid := req.GetUid()
 	roomInfo := RManager.GetRoom(ctx, roomId)
 	roomInfo.SendAll(uid, msgContext.RawData)
-	return 0, ""
+	return 0, "success"
 }

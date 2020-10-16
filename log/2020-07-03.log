@@ -1,0 +1,36 @@
+2020/07/03 14:37:06.610988 tcp_server.go:24: user stop listen
+2020/07/03 14:37:06.611069 tcp_server.go:35: user stop listen, exit accept
+2020/07/03 14:37:17.602603 tcp_server.go:24: user stop listen
+2020/07/03 14:37:17.602697 tcp_server.go:35: user stop listen, exit accept
+2020/07/03 14:39:07.054701 tcp_server.go:24: user stop listen interrupt
+2020/07/03 14:39:07.054965 tcp_server.go:35: user stop listen, exit accept
+2020/07/03 14:39:11.239655 tcp_server.go:24: user stop listen window size changes
+2020/07/03 14:39:11.239724 tcp_server.go:35: user stop listen, exit accept
+2020/07/03 14:39:30.331823 tcp_server.go:24: user stop listen window size changes
+2020/07/03 14:39:30.331892 tcp_server.go:35: user stop listen, exit accept
+2020/07/03 14:40:06.689590 tcp_server.go:25: user stop listen window size changes
+2020/07/03 14:40:06.689655 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 14:41:19.407294 tcp_server.go:25: user stop listen window size changes
+2020/07/03 14:41:19.407357 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 14:58:49.837456 tcp_server.go:25: user stop listen interrupt
+2020/07/03 14:58:49.838535 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 15:25:50.073234 tcp_server.go:25: user stop listen interrupt
+2020/07/03 15:25:50.074455 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 16:38:41.835282 tcp_server.go:25: user stop listen interrupt
+2020/07/03 16:38:41.836419 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 16:38:50.406239 tcp_server.go:25: user stop listen interrupt
+2020/07/03 16:39:08.781653 tcp_server.go:25: user stop listen interrupt
+2020/07/03 16:39:08.781752 tcp_server.go:36: user stop listen, exit accept
+2020/07/03 16:40:51.919932 tcp_server.go:26: user stop listen interrupt
+2020/07/03 16:40:51.920004 tcp_server.go:37: user stop listen, exit accept
+2020/07/03 16:41:29.309474 tcp_server.go:26: user stop listen interrupt
+2020/07/03 16:41:29.309550 tcp_server.go:37: user stop listen, exit accept
+2020/07/03 16:42:01.795229 tcp_server.go:27: user stop listen interrupt
+2020/07/03 16:42:01.795304 tcp_server.go:38: user stop listen, exit accept
+2020/07/03 16:54:44.942919 tcp_server.go:27: user stop listen interrupt
+2020/07/03 16:54:44.942982 tcp_server.go:38: user stop listen, exit accept
+2020/07/03 16:56:20.254934 tcp_server.go:27: user stop listen interrupt
+2020/07/03 16:56:20.255005 tcp_server.go:38: user stop listen, exit accept
+2020/07/03 17:16:06.520033 parse.go:131: headReq[cmd:1 subcmd:1 seq:1 ex:"\010\350\007\020\223\365\260*" ] req[room_id:1000 uid:88881811 ] headRsp[cmd:1 subcmd:1 seq:1 err_msg:"success" ] rsp[]
+2020/07/03 17:16:11.350408 tcp_server.go:28: user stop listen interrupt
+2020/07/03 17:16:11.350469 tcp_server.go:42: user stop listen, exit accept

@@ -32,6 +32,7 @@ func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remain
 	from := 0
 	status := STATUS_START_EX
 	needLen := 1
+	var msg []byte
 	for from+needLen <= total {
 		switch status {
 		case STATUS_START_EX:
@@ -48,7 +49,8 @@ func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remain
 			needLen = msgLen
 			status = STATUS_BODY
 		case STATUS_BODY:
-			HandleMsg(ctx, buf[from:from+needLen])
+			//HandleMsg(ctx, buf[from:from+needLen])
+			msg = buf[from:from+needLen]
 			from += needLen
 			needLen = 1
 			status = STATUS_END_EX
@@ -58,10 +60,11 @@ func ParseMsg(ctx context.Context, buf []byte, total int) (remain []byte, remain
 				break
 			}
 			from += needLen
-			needLen = 1
-			status = STATUS_COMPLETE
-		case STATUS_COMPLETE:
+
+			HandleMsg(ctx, msg)
 			useLen = from
+
+			needLen = 1
 			status = STATUS_START_EX
 		}
 	}
@@ -143,6 +146,22 @@ func ComposeMsg(msg proto.Message) (data []byte) {
 	binary.BigEndian.PutUint16(lenBuf, uint16(len(pData)))
 	buf.Write(lenBuf)
 	buf.Write(pData)
+	buf.WriteByte(0x3)
+
+	//fmt.Println(len(pData))
+
+	data = buf.Bytes()
+	return
+}
+
+func ComposeMsgWithBytes(msg []byte) (data []byte) {
+
+	var buf bytes.Buffer
+	buf.WriteByte(0x2)
+	lenBuf := make([]byte, 2)
+	binary.BigEndian.PutUint16(lenBuf, uint16(len(msg)))
+	buf.Write(lenBuf)
+	buf.Write(msg)
 	buf.WriteByte(0x3)
 
 	//fmt.Println(len(pData))

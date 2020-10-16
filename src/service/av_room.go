@@ -10,6 +10,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/ngid/simple_av_server/src/ngid"
 	"net"
 	"sync"
 )
@@ -62,10 +63,11 @@ func (c *RoomInfo) UpdateUser(uid int64, bUpload bool) {
 func (c *RoomInfo) SendAll(uid int64, b []byte) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+	data := ngid.ComposeMsgWithBytes(b)
 	for _, user := range c.userList {
 		if user.uid == uid {
 			continue
 		}
-		user.conn.Write(b)
+		user.conn.Write(data)
 	}
 }

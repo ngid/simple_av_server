@@ -11,10 +11,12 @@ package main
 import (
 	"fmt"
 	"github.com/mjproto/simple_av"
+	_ "github.com/ngid/simple_av_server/src/log_files"
 	"github.com/ngid/simple_av_server/src/ngid"
 	"github.com/ngid/simple_av_server/src/service"
-	"reflect"
 )
+
+// CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o simple_av_server
 
 func init() {
 	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_JoinRoom), &simple_av.JoinRoomReq{}, &simple_av.JoinRoomRsp{},
@@ -31,37 +33,7 @@ func init() {
 
 }
 
-func TestReflect() {
-	//req := simple_av.JoinRoomReq{
-	//	RoomId: 100,
-	//	Uid: 88,
-	//}
-	////joinType := reflect.TypeOf(req)
-	//joinValue := reflect.ValueOf(req)
-	//
-	//fmt.Println(joinValue.Kind())
-	//fmt.Println(joinValue.Type())
-	//
-	//fmt.Println("start get ")
-	//
-	//for i:=0; i<joinValue.NumField(); i++ {
-	//	fmt.Println(joinValue.Field(i))
-	//}
-
-	joinType := reflect.TypeOf(&simple_av.JoinRoomReq{})
-
-	fmt.Println(joinType, joinType.Elem())
-
-	valueType := reflect.New(joinType.Elem())
-	fmt.Println(valueType)
-
-	req := valueType.Interface().(*simple_av.JoinRoomReq)
-	fmt.Printf("%#v", req)
-
-	//fmt.Println(joinType, joinValue)
-}
-
 func main() {
-	//TestReflect()
 	ngid.Listen("localhost:50000")
+	fmt.Println("exit listen")
 }
