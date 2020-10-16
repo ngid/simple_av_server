@@ -12,6 +12,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
+	"google.golang.org/grpc"
 	"net"
 )
 
@@ -23,6 +24,8 @@ type SimpleMsgContext struct {
 	BodyReq proto.Message
 	BodyRsp proto.Message
 	RawData []byte
+
+	stream grpc.ServerStream
 }
 
 func GetSimpleContext(ctx context.Context) *SimpleMsgContext {
