@@ -62,6 +62,6 @@ func HandleSendData(ctx context.Context) (errorCode int32, errorMsg string) {
 	uid := req.GetUid()
 	roomInfo := RManager.GetRoom(ctx, roomId)
 	//roomInfo.SendAll(uid, msgContext.RawData)
-	roomInfo.SendAllUseTRPC(uid)
+	roomInfo.SendAllUseTRPC(ctx, uid)
 	return 0, "success"
 }

@@ -10,6 +10,7 @@ package ngid
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/mjproto/simple_msg"
 	"io"
@@ -33,9 +34,10 @@ func (s *TrpcServer) Head(gs simple_msg.SimpleMsg_HeadServer) error {
 		}
 
 		headRsp := &simple_msg.HeadRsp{
-			Cmd:    headReq.GetCmd(),
-			Subcmd: headReq.GetSubcmd(),
-			Seq:    headReq.GetSeq(),
+			Cmd:     headReq.GetCmd(),
+			Subcmd:  headReq.GetSubcmd(),
+			Seq:     headReq.GetSeq(),
+			Version: headReq.GetVersion(),
 		}
 
 		ctx1 := context.Background()
@@ -83,6 +85,10 @@ func HandleTrpcMsg(ctx context.Context) {
 	msgContext.BodyRsp = bodyRsp
 
 	headRsp.ErrCode, headRsp.ErrMsg = handler.HandleMsg(ctx)
+	headReq.Ex, err = proto.Marshal(bodyRsp)
+	if err != nil {
+		fmt.Println("failed to marsh response body", err)
+	}
 
 	//fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
 	log.Printf("headReq[%v] req[%v] headRsp[%v] rsp[%v]", msgContext.HeadReq, msgContext.BodyReq, msgContext.HeadRsp, msgContext.BodyRsp)

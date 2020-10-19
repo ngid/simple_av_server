@@ -36,13 +36,10 @@ func init() {
 		ngid.HandlerFunc(service.HandleSendData))
 
 }
-//
-//func main() {
-//	ngid.Listen("localhost:50000")
-//	fmt.Println("exit listen")
-//}
 
 func main() {
+	// ngid.Listen("localhost:50000")
+
 	lis, err := net.Listen("tcp", ":50000") //监听所有网卡8028端口的TCP连接
 	if err != nil {
 		log.Fatalf("监听失败: %v", err)

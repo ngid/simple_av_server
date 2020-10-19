@@ -9,9 +9,11 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/ngid/simple_av_server/src/ngid"
 	"google.golang.org/grpc"
+	"log"
 	"net"
 	"sync"
 )
@@ -20,7 +22,7 @@ type UserInfo struct {
 	uid     int64
 	conn    net.Conn
 	bUpload bool
-	stream grpc.ServerStream
+	stream  grpc.ServerStream
 }
 
 type UserInfoList map[int64]*UserInfo
@@ -29,7 +31,6 @@ type RoomInfo struct {
 	roomId   int64
 	userList UserInfoList // uid->UserInfo
 	mutex    sync.Mutex
-
 }
 
 func (c *RoomInfo) AddUser(uid int64, conn net.Conn, gs grpc.ServerStream) {
@@ -40,9 +41,10 @@ func (c *RoomInfo) AddUser(uid int64, conn net.Conn, gs grpc.ServerStream) {
 			uid:     uid,
 			conn:    conn,
 			bUpload: false,
-			stream: gs,
+			stream:  gs,
 		}
 		c.userList[uid] = userInfo
+		log.Println("add user", userInfo)
 	}
 }
 
@@ -76,12 +78,16 @@ func (c *RoomInfo) SendAll(uid int64, b []byte) {
 	}
 }
 
-func (c* RoomInfo) SendAllUseTRPC(uid int64) {
+func (c *RoomInfo) SendAllUseTRPC(ctx context.Context, uid int64) {
+	msgContext := ngid.GetSimpleContext(ctx)
+	req := msgContext.HeadReq
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	for _, user := range c.userList {
 		if user.uid == uid {
 			continue
 		}
+
+		user.stream.SendMsg(req)
 	}
 }
