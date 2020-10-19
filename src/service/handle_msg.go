@@ -24,7 +24,8 @@ func HandleJoinRoom(ctx context.Context) (errorCode int32, errorMsg string) {
 
 	roomInfo := RManager.GetRoom(ctx, roomId)
 	conn := msgContext.Conn
-	roomInfo.AddUser(uid, conn)
+	gs := msgContext.Stream
+	roomInfo.AddUser(uid, conn, gs)
 
 	return 0, "success"
 }
@@ -60,6 +61,7 @@ func HandleSendData(ctx context.Context) (errorCode int32, errorMsg string) {
 	roomId := req.GetRoomId()
 	uid := req.GetUid()
 	roomInfo := RManager.GetRoom(ctx, roomId)
-	roomInfo.SendAll(uid, msgContext.RawData)
+	//roomInfo.SendAll(uid, msgContext.RawData)
+	roomInfo.SendAllUseTRPC(uid)
 	return 0, "success"
 }

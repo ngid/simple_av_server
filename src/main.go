@@ -9,9 +9,11 @@
 package main
 
 import (
+	"github.com/mjproto/simple_av"
 	"github.com/mjproto/simple_msg"
 	_ "github.com/ngid/simple_av_server/src/log_files"
 	"github.com/ngid/simple_av_server/src/ngid"
+	"github.com/ngid/simple_av_server/src/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
@@ -20,20 +22,20 @@ import (
 
 // CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o simple_av_server
 
-//func init() {
-//	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_JoinRoom), &simple_av.JoinRoomReq{}, &simple_av.JoinRoomRsp{},
-//		ngid.HandlerFunc(service.HandleJoinRoom))
-//
-//	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_ExitRoom), &simple_av.ExitRoomReq{}, &simple_av.ExitRoomRsp{},
-//		ngid.HandlerFunc(service.HandleExitRoom))
-//
-//	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_Upload), &simple_av.UploadReq{}, &simple_av.UploadRsp{},
-//		ngid.HandlerFunc(service.HandleUpload))
-//
-//	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_SendData), &simple_av.SendDataReq{}, &simple_av.SendDataRsp{},
-//		ngid.HandlerFunc(service.HandleSendData))
-//
-//}
+func init() {
+	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_JoinRoom), &simple_av.JoinRoomReq{}, &simple_av.JoinRoomRsp{},
+		ngid.HandlerFunc(service.HandleJoinRoom))
+
+	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_ExitRoom), &simple_av.ExitRoomReq{}, &simple_av.ExitRoomRsp{},
+		ngid.HandlerFunc(service.HandleExitRoom))
+
+	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_Upload), &simple_av.UploadReq{}, &simple_av.UploadRsp{},
+		ngid.HandlerFunc(service.HandleUpload))
+
+	ngid.RegisterFunc(int32(simple_av.BIG_CMD_SIMPLE_AV), int32(simple_av.SUB_CMD_SendData), &simple_av.SendDataReq{}, &simple_av.SendDataRsp{},
+		ngid.HandlerFunc(service.HandleSendData))
+
+}
 //
 //func main() {
 //	ngid.Listen("localhost:50000")

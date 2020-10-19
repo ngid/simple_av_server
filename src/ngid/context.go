@@ -25,7 +25,7 @@ type SimpleMsgContext struct {
 	BodyRsp proto.Message
 	RawData []byte
 
-	stream grpc.ServerStream
+	Stream grpc.ServerStream
 }
 
 func GetSimpleContext(ctx context.Context) *SimpleMsgContext {

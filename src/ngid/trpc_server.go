@@ -44,7 +44,7 @@ func (s *TrpcServer) Head(gs simple_msg.SimpleMsg_HeadServer) error {
 			Conn:    nil,
 			HeadReq: headReq,
 			HeadRsp: headRsp,
-			stream:  gs,
+			Stream:  gs,
 		}
 		connCtx := context.WithValue(ctx, "ngid", ngid)
 
@@ -87,5 +87,5 @@ func HandleTrpcMsg(ctx context.Context) {
 	//fmt.Println(msgContext.BodyReq, msgContext.BodyRsp)
 	log.Printf("headReq[%v] req[%v] headRsp[%v] rsp[%v]", msgContext.HeadReq, msgContext.BodyReq, msgContext.HeadRsp, msgContext.BodyRsp)
 
-	msgContext.stream.SendMsg(bodyRsp)
+	msgContext.Stream.SendMsg(headRsp)
 }
