@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
+	"strings"
 )
 
 // CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o simple_av_server
@@ -36,6 +37,20 @@ func init() {
 		ngid.HandlerFunc(service.HandleSendData))
 
 }
+
+func WordCount(s string) map[string]int {
+	m := make(map[string]int)
+	words := strings.Split(s, " ")
+	for _, word := range  words {
+		if v, ok := m[word]; ok {
+			m[word] = v + 1
+		} else {
+			m[word] = 1
+		}
+	}
+	return m
+}
+
 
 func main() {
 	// ngid.Listen("localhost:50000")
